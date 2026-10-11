@@ -1,7 +1,7 @@
-Identificação dos Alunos
+Identificação dos Estudantes
 -
-Márcio Quintas-20241499-LEIF-D02-26/27- 20241499@iade.pt
+Márcio Alexandre Cardoso Quintas - 20241499 - Engenharia Informática - 5º semestre -26/27 - 20241499@iade.pt
 
-Gianni Lopes-20240593-LEIF-D02-26/27- 20240593@iade.pt
+Gianni Celso dos Santos Lopes - 20240593 - Engenharia Informática - 5º semestre - 26/27 - 20240593@iade.pt
 
-Ngweza Van-Dúnem-20240075-LEIF-D02-26/27- 20240075@iade.pt
+Ngweza Josemar Falcão Pereira dos Santos Van-Dúnem - 20240075 - Engenharia Informática - 5º semestre - 26/27 - 20240075@iade.pt
