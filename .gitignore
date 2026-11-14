@@ -1,0 +1,7 @@
+.env
+.env.*
+!.env.example
+.test-token
+node_modules/
+.DS_Store
+src/app.js.save
