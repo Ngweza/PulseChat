@@ -213,3 +213,17 @@ réplica, configure primeiro o utilizador e as regras de acesso no primário.
 O esquema está em [`database/schema.sql`](database/schema.sql) e cria as tabelas
 `users`, `rooms`, `room_members` e `messages`, bem como os índices usados nas
 consultas.
+
+## Aplicação Android
+
+O frontend Android está em [`android/`](android/) e usa Kotlin e Jetpack
+Compose. Para compilar a variante de depuração:
+
+```bash
+cd android
+./gradlew assembleDebug
+```
+
+O projeto requer Android SDK 36. No emulador Android, a aplicação liga-se ao
+backend em `http://10.0.2.2:8080`; para outro ambiente, ajuste os endereços de
+API e WebSocket em `android/app/src/main/java/pt/iade/ei/pulsechat/data/network/`.
