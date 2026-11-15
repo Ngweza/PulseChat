@@ -25,7 +25,7 @@ Redis sincroniza eventos Socket.IO entre instâncias do backend.
 - Express 5 e Socket.IO
 - PostgreSQL 17
 - Redis 7
-- Docker e Docker Compose (opcional)
+- Docker
 
 ## API REST
 
