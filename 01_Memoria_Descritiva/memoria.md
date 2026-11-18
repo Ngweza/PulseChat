@@ -14,6 +14,7 @@
 - Márcio Alexandre Cardoso Quintas — 20241499
 - Gianni Celso dos Santos Lopes — 20240593
 - Ngweza Josemar Falcão Pereira Van-Dúnem — 20240075
+- Francisco Zolana - 20240801
 
 ### Palavras-chave
 
@@ -23,46 +24,149 @@ Mensagens Instantâneas; Sistemas Distribuídos; Comunicação Assíncrona; Tole
 
 ## 2. Resumo
 
-O PulseChat é uma plataforma distribuída de mensagens instantâneas concebida para mitigar os problemas de fragmentação da comunicação e a vulnerabilidade de infraestruturas centralizadas a pontos únicos de falha (Single Points of Failure). Desenvolvido no âmbito multidisciplinar da Licenciatura em Engenharia Informática, o sistema responde diretamente aos desafios do Trabalho 8 do briefing curricular, focando-se em demonstrar na prática mecanismos de comunicação assíncrona, persistência resiliente, ordenação causal, tolerância a faltas e mitigação ativa de falhas de componentes.   
-
-A aplicação cliente é desenvolvida de forma nativa para Android em Kotlin através do Android Studio, assegurando uma interface moderna, reativa e eficiente na gestão de sessões de comunicação. A infraestrutura de suporte encontra-se distribuída entre nós de execução redundantes (Servidor 1 e Servidor 2), onde instâncias de Nginx operam como proxies reversos e balanceadores de carga com sondagens ativas de integridade (health checks). O tráfego de mensagens em tempo real é processado por nós de backend em Node.js suportados por WebSockets.   
-
-Para prevenir a perda de informação em caso de sobrecarga ou indisponibilidade temporária de instâncias, o sistema recorre ao message broker RabbitMQ, que desacopla a ingestão dos eventos através de filas duráveis e persistentes. O armazenamento persistente assenta num cluster de base de dados relacional PostgreSQL configurado em topologia Primário-Réplica, operando em articulação com instâncias distribuídas de Redis para cache volátil e sincronização de estado e sessões entre servidores em memória.   
-
-A integridade do histórico de conversação é preservada através de números de sequência por conversa e chaves de idempotência operacional, prevenindo a duplicação de mensagens durante reconexões ou procedimentos de failover. Na vertente da Segurança Informática, impõe-se a encriptação integral das comunicações através de HTTPS e WSS, complementada pela validação de integridade dos conteúdos via hashes criptográficos SHA-256. Paralelamente, a componente de Inteligência Artificial implementa um microsserviço em Python com Scikit-Learn dedicado à classificação em tempo real de mensagens maliciosas e deteção estatística de comportamentos anómalos ou fluxos massivos de spam. A tolerância a faltas da solução é validada de forma empírica através de ensaios laboratoriais controlados com contentores Docker, comprovando que a quebra abrupta de serviços, bases de dados ou nós de rede não interrompe a disponibilidade global nem corrompe os dados dos utilizadores.
+O PulseChat é um projeto de desenvolvimento de uma plataforma de comunicação digital, concebida para permitir a troca de mensagens em tempo real entre utilizadores, através de conversas individuais e grupos. O principal objetivo consiste em desenvolver uma aplicação funcional, escalável e resiliente, capaz de assegurar a continuidade da comunicação mesmo perante falhas num dos servidores.
+A solução foi desenvolvida com uma arquitetura cliente-servidor, na qual a aplicação Android funciona como interface de utilização e comunica com uma infraestrutura de backend responsável pelo processamento dos pedidos, gestão dos utilizadores, armazenamento das mensagens e funcionamento das conversas.
+No desenvolvimento da infraestrutura foram utilizados Node.js e Express.js para a implementação dos servidores, Socket.IO para permitir a comunicação em tempo real e PostgreSQL para o armazenamento persistente dos dados. Foi também integrado Redis, utilizado na partilha de eventos entre instâncias do servidor, permitindo melhorar a comunicação numa arquitetura com múltiplos backends. Para a distribuição dos pedidos foi utilizado o Nginx, configurado como proxy inverso e balanceador de carga entre dois servidores de aplicação, designados backend-a e backend-b.
+Uma das características relevantes do projeto é a implementação de mecanismos de tolerância a falhas. A existência de duas instâncias de backend permite que, quando uma delas fica indisponível, a outra possa continuar a assegurar o serviço. Durante os testes realizados, foi possível verificar a recuperação da ligação da aplicação Android através do backend-b quando o backend-a foi desligado. Os grupos criados permaneceram igualmente guardados na base de dados, demonstrando a separação entre a disponibilidade dos servidores de aplicação e a persistência dos dados.
+O projeto integra ainda o PulseBot, um agente inteligente desenvolvido em Python, Flask e PyTorch. Este componente permite reconhecer determinadas intenções dos utilizadores através de um classificador treinado, sendo ativado através da menção @PulseBot nas conversas.
+Ao longo do desenvolvimento foram realizados testes de comunicação, persistência de dados, funcionamento dos servidores e recuperação perante falhas. O trabalho permitiu aplicar conhecimentos de desenvolvimento de aplicações, bases de dados, redes, comunicação em tempo real, virtualização e sistemas distribuídos.
 
 ---
 
 ## 3. Contexto
 
-A dispersão do ecossistema digital dos estudantes e equipas de trabalho entre diversas plataformas gera uma experiência fragmentada e ineficiente. Adicionalmente, sistemas de comunicação convencionais baseados em arquiteturas centralizadas sofrem frequentemente de indisponibilidade total e descarte de dados quando o seu único servidor aplicacional ou nó de dados colapsa.
+Atualmente, as plataformas de comunicação digital são essenciais para a interação entre pessoas e equipas. No entanto, uma aplicação dependente de um único servidor pode ficar indisponível quando ocorre uma falha nesse servidor.
+O PulseChat procura responder a este problema através de uma arquitetura distribuída, com dois servidores de aplicação, mecanismos de comunicação em tempo real e armazenamento centralizado dos dados.
 
-Como motivação, Explorar na prática os conceitos nucleares de sistemas distribuídos e engenharia de software para construir uma plataforma resiliente, sustentada no princípio orientador de que um serviço de mensagens deve saber responder e recuperar com transparência quando componentes de rede ou hardware falham.
+ii. Motivação
+A motivação para o desenvolvimento deste projeto surgiu da necessidade de criar uma plataforma própria de comunicação, que permitisse explorar tecnologias modernas de desenvolvimento de software e compreender o funcionamento de sistemas distribuídos.
+Pretendeu-se também desenvolver uma solução que não dependesse exclusivamente de um único servidor, permitindo estudar mecanismos de redundância, balanceamento de carga e recuperação de ligações.
 
-Como objetivo, conceber e implementar um sistema distribuído de mensagens instantâneas tolerante a falhas, combinando desacoplamento por filas (RabbitMQ), persistência com replicação (PostgreSQL Primário/Réplica), cache em Redis, ordenação sequencial estrita, integridade por hash, segurança de transporte e defesa ativa contra spam com recurso a Machine Learning.
+iii. Objetivos
+Os principais objetivos definidos foram:
+
+Desenvolver uma aplicação Android para comunicação entre utilizadores.
+Implementar conversas individuais e em grupo.
+Permitir o envio e a receção de mensagens em tempo real.
+Implementar autenticação e gestão de utilizadores.
+Utilizar uma base de dados PostgreSQL para garantir a persistência da informação.
+Integrar Redis para partilha de eventos entre os servidores.
+Configurar dois servidores de aplicação para aumentar a disponibilidade.
+Implementar o Nginx como proxy inverso e balanceador de carga.
+Desenvolver e integrar o agente inteligente PulseBot.
+Testar o comportamento da aplicação perante falhas de servidores.
+
 
 ---
 
 ## 4. Processo
 
-Nesta primeira fase, foram definidos os objetivos, os requisitos, as funcionalidades e a arquitetura inicial do PulseChat. A solução prevê uma aplicação Android desenvolvida em Kotlin, serviços backend (XAMPP), comunicação em tempo real através de WebSockets e processamento assíncrono com RabbitMQ.
+i. Metodologia utilizada
 
-O PostgreSQL será utilizado para a persistência dos dados e o Redis para apoio à gestão de informação temporária. A solução prevê ainda o uso de Python e Scikit-learn na componente de Inteligência Artificial, bem como Docker e GitHub para apoiar a execução dos serviços e o controlo de versões.
+O desenvolvimento foi realizado de forma incremental, dividindo o projeto em diferentes componentes e funcionalidades. Inicialmente, foi preparada a estrutura da aplicação e da infraestrutura. Posteriormente, foram desenvolvidos os mecanismos de comunicação, autenticação, armazenamento e integração entre os serviços.
 
-Equipa discente composta por Márcio Quintas (20241499), Gianni Lopes (20240593) e Ngweza Van-Dúnem (20240075), com distribuição colaborativa e partilhada de tarefas pelas áreas de Engenharia de Software, Sistemas Distribuídos, Segurança Informática e Inteligência Artificial.
+Foram realizados testes progressivos para verificar o funcionamento individual dos componentes e o comportamento da arquitetura no seu conjunto. Também foram efetuados testes de falha, nomeadamente através da interrupção de uma das instâncias do backend, de forma a avaliar a capacidade de recuperação da aplicação.
+
+ii. Ferramentas utilizadas
+
+As principais ferramentas utilizadas foram:
+
+Android Studio – desenvolvimento e testes da aplicação Android.
+Visual Studio Code – edição e desenvolvimento do backend.
+Docker e Docker Compose – criação, execução e gestão dos containers.
+Git – gestão e controlo do código-fonte.
+Terminal – execução de comandos, configuração e diagnóstico dos serviços.
+Figma – elaboração do diagrama da arquitetura do sistema.
+
+iii. Tecnologias utilizadas
+
+O projeto utiliza as seguintes tecnologias:
+Kotlin: desenvolvimento da aplicação Android.
+Node.js: execução dos servidores de aplicação.
+Express.js: criação e gestão das rotas e serviços HTTP.
+Socket.IO: comunicação em tempo real entre clientes e servidores.
+PostgreSQL: armazenamento de utilizadores, grupos, membros e mensagens.
+Redis: partilha de eventos entre instâncias do backend.
+Nginx: encaminhamento e distribuição dos pedidos entre servidores.
+Docker: isolamento e execução dos diferentes serviços.
+Python e Flask: implementação do serviço PulseBot.
+PyTorch: criação e treino do classificador de intenções do PulseBot.
+JWT: mecanismo de autenticação através de tokens.
+
+iv. Estrutura da equipa
+
+A equipa organizou o trabalho em diferentes áreas de desenvolvimento, de acordo com as responsabilidades atribuídas a cada elemento:
+Desenvolvimento da aplicação Android e respetiva interface.
+Implementação do backend e dos serviços de comunicação.
+Configuração e gestão da base de dados.
+Preparação da infraestrutura Docker, Redis e Nginx.
+Desenvolvimento e integração do PulseBot.
+Realização de testes e documentação técnica.
 
 ---
 
 ## 5. Resultados
 
-Nesta primeira entrega, foram estabelecidos o enquadramento do PulseChat, os objetivos, os requisitos principais e uma proposta de arquitetura distribuída. Foram também identificados mecanismos de segurança, persistência, replicação, sincronização e tolerância a falhas.
+i. Descrição da solução desenvolvida
+Foi desenvolvida uma plataforma de comunicação composta por uma aplicação Android e uma infraestrutura de backend distribuída. A aplicação comunica com os servidores através do Nginx, que encaminha os pedidos para as instâncias disponíveis.
 
-A implementação e os testes das diferentes componentes serão desenvolvidos progressivamente nas fases seguintes.
+A infraestrutura inclui dois servidores Node.js, uma base de dados PostgreSQL principal, uma réplica PostgreSQL, um serviço Redis e o serviço independente PulseBot. Os componentes são executados em containers Docker, permitindo uma gestão organizada e isolada dos serviços.
+
+ii. Funcionalidades principais
+
+Entre as principais funcionalidades implementadas destacam-se:
+
+Registo e autenticação de utilizadores.
+Comunicação em tempo real através de Socket.IO.
+Criação e consulta de grupos de conversa.
+Gestão de membros dos grupos.
+Envio e receção de mensagens.
+Armazenamento persistente das conversas.
+Comunicação entre múltiplas instâncias do backend através do Redis.
+Distribuição dos pedidos através do Nginx.
+Identificação da instância de backend à qual a aplicação está ligada.
+Integração do PulseBot através da menção @PulseBot.
+
+Foi também testado o mecanismo de failover. Durante esse teste, o backend-a foi desligado e a aplicação conseguiu estabelecer ligação através do backend-b. Os grupos existentes permaneceram disponíveis na base de dados e foram apresentados na aplicação.
+
+iii. Contributos relevantes
+
+Um dos principais contributos do projeto foi a implementação e validação de uma arquitetura com múltiplas instâncias de backend, permitindo estudar a disponibilidade e a tolerância a falhas.
+
+A utilização do Redis permitiu explorar a partilha de eventos entre servidores, enquanto o PostgreSQL assegurou a persistência dos dados independentemente da instância de backend utilizada.
+
+Outro contributo importante foi o desenvolvimento do PulseBot, que introduziu um componente de inteligência artificial próprio na plataforma, utilizando um classificador de intenções desenvolvido com PyTorch.
+
+Os testes realizados permitiram ainda identificar limitações na rapidez de recuperação das ligações e oportunidades de melhoria na configuração do balanceamento e na reconexão automática do cliente Android.
+
 
 ---
 
 ## 6. Reflexão
 
-A fase inicial permitiu estruturar o PulseChat e identificar os principais desafios técnicos do projeto, sobretudo a entrega fiável de mensagens, a consistência dos dados e a recuperação perante falhas.
+i. Lições aprendidas
+O desenvolvimento do PulseChat permitiu adquirir conhecimentos práticos sobre a construção de aplicações distribuídas e a integração de diferentes tecnologias num único sistema.
 
-Nas próximas fases, pretende-se implementar os componentes definidos, testar a comunicação entre serviços e avaliar o comportamento do sistema em situações de falha, reforçando a segurança e a fiabilidade da solução.
+Foi possível compreender melhor a importância da comunicação em tempo real, da persistência de dados, da utilização de containers e da existência de mecanismos de redundância. Os testes de falha demonstraram que a disponibilidade de uma aplicação não depende apenas de existirem vários servidores, mas também da correta configuração da infraestrutura e do comportamento do cliente durante a reconexão.
+
+ii. Limitações
+
+Apesar dos resultados alcançados, existem aspetos que necessitam de melhorias. A recuperação da ligação entre a aplicação Android e o servidor alternativo ainda pode ser otimizada, nomeadamente através da redução dos tempos de reconexão e da recuperação automática da participação nos grupos.
+A réplica PostgreSQL e os mecanismos de promoção automática perante uma falha do servidor principal também representam áreas que exigem validação e desenvolvimento adicional. O PulseBot, por sua vez, ainda possui funcionalidades que necessitam de maior aprofundamento, sobretudo no processamento de contexto e na execução efetiva de determinadas intenções.
+
+
+iii. Trabalho futuro
+
+Como trabalho futuro, pretende-se:
+
+Melhorar a rapidez de deteção de falhas e reconexão automática.
+Implementar a recuperação automática da participação nos grupos após uma reconexão.
+Melhorar a gestão de sessões e a sincronização de mensagens.
+Implementar e testar mecanismos de failover da base de dados PostgreSQL.
+Reforçar a segurança da comunicação e dos dados.
+Desenvolver novas funcionalidades para o PulseBot, incluindo maior capacidade de compreensão do contexto das conversas.
+Melhorar a monitorização dos servidores e a identificação de erros.
+Realizar testes de carga e de resistência para avaliar o desempenho da infraestrutura.
+
+Em conclusão, o PulseChat representa uma solução que permitiu aplicar conhecimentos de várias áreas da engenharia informática, desde o desenvolvimento mobile até à administração de sistemas e à integração de inteligência artificial. O projeto constitui uma base funcional para a evolução de uma plataforma de comunicação distribuída, com potencial para receber novas funcionalidades e melhorias de desempenho e disponibilidade.
+
